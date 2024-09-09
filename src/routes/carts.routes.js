@@ -1,19 +1,18 @@
 import { Router } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-
-const fs = require('fs');
+import fs from 'fs';
 
 const cartsRouter = Router();
 
 //Leer productos de carts.json
 const readCartsFile = () => {
     const data = fs.readFileSync('./data/carts.json', 'utf-8');
-    return json.parse(data);
+    return JSON.parse(data);
 };
 
 //Guardar productos en carts.json
 const writeCartsFile = (data) => {
-    fs.writeFileSync('./data/carts.json', json.stringify(data, null, 2));
+    fs.writeFileSync('./data/carts.json', JSON.stringify(data, null, 2));
 };
 
 //Crear nuevo carrito

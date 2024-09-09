@@ -1,19 +1,18 @@
 import { Router } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-
-const fs = require('fs');
+import fs from 'fs';
 
 const productsRouter = Router();
 
 //Leer productos de products.json
 const readProductsFile = () => {
     const data = fs.readFileSync('./data/products.json', 'utf-8');
-    return json.parse(data);
+    return JSON.parse(data);
 };
 
 //Guardar productos en products.json
 const writeProductsFile = (data) => {
-    fs.writeFileSync('./data/products.json', json.stringify(data, null, 2));
+    fs.writeFileSync('./data/products.json', JSON.stringify(data, null, 2));
 };
 
 //Obtener todos los productos
@@ -74,7 +73,7 @@ productsRouter.put('/:pid', (req, res) => {
 })
 
 //Eliminar producto
-productsRouter.delete('./:pid', (req, res) => {
+productsRouter.delete('/:pid', (req, res) => {
     let products = readProductsFile();
     const productIndex = products.findIndex(p => p.id === req.params.pid);
     if (productIndex === -1) {
