@@ -1,21 +1,29 @@
 import { Router } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import fs from 'fs';
+import path from 'path';
+import { io } from '../app.js';
+import __dirname from '../utils.js';
 
 const productsRouter = Router();
 
-//Leer productos de products.json
+// Leer productos de products.json
 const readProductsFile = () => {
-    const data = fs.readFileSync('./data/products.json', 'utf-8');
-    return JSON.parse(data);
+    try {
+        const data = fs.readFileSync(path.join(__dirname, 'data/products.json'), 'utf-8');
+        return JSON.parse(data);
+    } catch (error) {
+        console.error("Error al leer el archivo de productos:", error);
+        return [];
+    }
 };
 
-//Guardar productos en products.json
+// Guardar productos en products.json
 const writeProductsFile = (data) => {
-    fs.writeFileSync('./data/products.json', JSON.stringify(data, null, 2));
+    fs.writeFileSync(path.join(__dirname, 'data/products.json'), JSON.stringify(data, null, 2));
 };
 
-//Obtener todos los productos
+// Obtener todos los productos
 productsRouter.get('/', (req, res) => {
     const limit = parseInt(req.query.limit) || null;
     let products = readProductsFile();
@@ -25,17 +33,17 @@ productsRouter.get('/', (req, res) => {
     res.json(products);
 });
 
-//Obtener producto por ID
+// Obtener producto por ID
 productsRouter.get('/:pid', (req, res) => {
     const products = readProductsFile();
     const product = products.find(p => p.id === req.params.pid);
-    if(!product) {
-        return res.status(404).json({ error: 'Producto no encontrado'})
+    if (!product) {
+        return res.status(404).json({ error: 'Producto no encontrado' });
     };
-    res.json(product)
-})
+    res.json(product);
+});
 
-//Agregar producto
+// Agregar producto
 productsRouter.post('/', (req, res) => {
     const { title, description, code, price, stock, category, thumbnails = [] } = req.body;
     if (!title || !description || !code || !price || !stock || !category) {
@@ -55,10 +63,11 @@ productsRouter.post('/', (req, res) => {
     };
     products.push(newProduct);
     writeProductsFile(products);
+    io.emit('updateProducts', products);
     res.status(201).json(newProduct);
-})
+});
 
-//Actualizar producto
+// Actualizar producto
 productsRouter.put('/:pid', (req, res) => {
     const { title, description, code, price, stock, category, thumbnails } = req.body;
     let products = readProductsFile();
@@ -66,13 +75,14 @@ productsRouter.put('/:pid', (req, res) => {
     if (productIndex === -1) {
         return res.status(404).json({ error: 'Producto no encontrado' });
     };
-    const updatedProduct = { ...products[productIndex], title, description, code, price, status, stock, category, thumbnails };
+    const updatedProduct = { ...products[productIndex], title, description, code, price, stock, category, thumbnails };
     products[productIndex] = updatedProduct;
     writeProductsFile(products);
+    io.emit('updateProducts', products);
     res.json(updatedProduct);
-})
+});
 
-//Eliminar producto
+// Eliminar producto
 productsRouter.delete('/:pid', (req, res) => {
     let products = readProductsFile();
     const productIndex = products.findIndex(p => p.id === req.params.pid);
@@ -81,7 +91,8 @@ productsRouter.delete('/:pid', (req, res) => {
     };
     products.splice(productIndex, 1);
     writeProductsFile(products);
+    io.emit('updateProducts', products);
     res.status(204).send();
-})
+});
 
-export default productsRouter
+export default productsRouter;
