@@ -3,14 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
+    <title>Listado de Productos</title>
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
-    <h1>Lista de Productos</h1>
+    <h1>Listado de Productos</h1>
+    
     <ul>
         {{#each products}}
-            <li>{{this.title}} - ${{this.price}}</li>
+            <li>
+                <strong>{{this.title}}</strong> - ${{this.price}}<br>
+                <em>{{this.description}}</em><br>
+                Código: {{this.code}}<br>
+                Stock: {{this.stock}}<br>
+                Categoría: {{this.category}}<br>
+                <img src="{{this.thumbnails.[0]}}" alt="Imagen de producto" width="100px">
+            </li>
+        {{else}}
+            <li>No hay productos disponibles.</li>
         {{/each}}
     </ul>
+    
 </body>
 </html>
